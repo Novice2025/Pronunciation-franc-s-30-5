@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francês Fluido com Daby</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .correct-answer { border-color: #10b981 !important; background-color: #ecfdf5 !important; }
+        .incorrect-answer { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+<div class="max-w-6xl mx-auto">
+    <header class="mb-10 text-center space-y-2">
+        <div class="inline-flex items-center justify-center p-3 bg-blue-600 text-white rounded-2xl mb-4 shadow-lg shadow-blue-200">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+            </svg>
+        </div>
+        <h1 class="text-4xl font-black tracking-tight text-slate-800">
+            Francês Fluido <span class="text-blue-600">com Daby</span>
+        </h1>
+        <p class="text-slate-500 max-w-lg mx-auto">
+            Domine as ligações, elisões e expressões que os franceses realmente usam.
+        </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <nav id="tab-container" class="lg:col-span-4 space-y-2 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar"></nav>
+        <main class="lg:col-span-8">
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200 border border-slate-100 p-8 min-h-[500px] flex flex-col relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 opacity-50"></div>
+                <div id="content-display" class="relative z-10 flex-1 overflow-y-auto"></div>
+                <div class="mt-8 flex justify-between gap-4 relative z-10 pt-4 border-t border-slate-100">
+                    <button id="prev-btn"
+                            class="px-6 py-3 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        ← Anterior
+                    </button>
+                    <button id="next-btn"
+                            class="px-6 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        Próxima →
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="mt-12 text-center text-slate-400 text-sm">
+        <p>Criado com dedicação por Daby • 2024</p>
+    </footer>
+</div>
+
+<script>
+    let activeTab = 0;
+
+    const phrasesData = [
+        // === Mapa Inicial ===
+        {
+            title: "🧭 Mapa do Francês Fluido",
+            translation: "Guia rápido: ligação, elisão e ON vs NOUS",
+            isOverview: true
+        },
+
+        // === Bloco 8: Il y a / Y'a ===
+        {
+            title: "Il y a du monde / Y'a du monde",
+            translation: "Tem gente / Há pessoas",
+            writing: "Il y a du monde / Y'a du monde",
+            native: "Il y a du monde / Y'a du monde",
+            brazilian: "Il iá dü mõd / Iá dü mõd",
+            context: "Formal: 'Il y a du monde' (padrão, aceitável em qualquer situação). Informal: 'Y'a du monde' (fala rápida, cotidiana).",
+            explanation: "A estrutura 'Il y a' é o jeito neutro de dizer 'há / tem'. Na fala informal, o 'il' some e vira apenas 'y'a'. O 'du monde' significa literalmente 'do mundo', mas é usado como 'gente, pessoas'. Em um restaurante cheio, um francês vai dizer naturalmente 'Y'a du monde ici'.",
+            exampleSentence: "Il y a du monde aujourd'hui au métro. / Y'a du monde aujourd'hui au métro.",
+            exampleTranslation: "Tem gente hoje no metrô. / Há muita gente hoje no metrô.",
+            exerciseSituation: "Você entra em um lugar lotado (metrô, loja, festa) e quer comentar que está cheio.",
+            exerciseQuestionFr: "Comment diriez-vous « Tem muita gente aqui » de forma natural?",
+            exerciseQuestionPt: "Como você diria « Tem muita gente aqui » de forma natural?",
+            exerciseCorrectAnswer: [
+                "Y'a du monde ici",
+                "y'a du monde ici",
+                "Il y a du monde ici",
+                "il y a du monde ici"
+            ]
+        },
+        {
+            title: "Il n'y a pas de problème / Y'a pas d'problème",
+            translation: "Não tem problema / Não há problema",
+            writing: "Il n'y a pas de problème / Y'a pas d'problème",
+            native: "Il n'y a pas de problème / Y'a pas d'problème",
+            brazilian: "Il niá pá dê problêm / Iá pá d'problêm",
+            context: "Formal: 'Il n'y a pas de problème'. Informal: 'Y'a pas d'problème'. Ambas significam 'sem problema'.",
+            explanation: "Na forma formal, a negação está completa: 'ne ... pas'. Na fala, o 'ne' costuma desaparecer ('il n'y a pas' → 'y'a pas'). Além disso, 'de problème' vira 'd'problème' pela elisão do 'e'. Para soar francês mesmo, 'Y'a pas d'problème' é onipresente.",
+            exampleSentence: "Il n'y a pas de problème, je peux t'aider. / Y'a pas d'problème, je peux t'aider.",
+            exampleTranslation: "Não tem problema, eu posso te ajudar.",
+            exerciseSituation: "Alguém pede desculpa por um atraso e você quer responder 'sem problema'.",
+            exerciseQuestionFr: "Comment répondez-vous « Não tem problema » de forma natural?",
+            exerciseQuestionPt: "Como você responde « Não tem problema » de forma natural?",
+            exerciseCorrectAnswer: [
+                "Y'a pas d'problème",
+                "y'a pas d'problème",
+                "Pas de problème",
+                "pas de problème",
+                "Il n'y a pas de problème",
+                "il n'y a pas de problème"
+            ]
+        },
+        {
+            title: "Il y a quelque chose / Y'a quelque chose",
+            translation: "Tem alguma coisa / Há algo",
+            writing: "Il y a quelque chose / Y'a quelque chose",
+            native: "Il y a quelque chose / Y'a quelque chose",
+            brazilian: "Il iá kélkê chôz / Iá kélkê chôz",
+            context: "Formal: 'Il y a quelque chose'. Informal: 'Y'a quelque chose'.",
+            explanation: "Mesma base: 'Il y a' → 'Y'a' na fala informal. 'Quelque chose' = 'algo / alguma coisa'. Em fala rápida, a sequência de consoantes comprime e pode soar como 'kélk'chos'.",
+            exampleSentence: "Il y a quelque chose qui ne va pas. / Y'a quelque chose qui ne va pas.",
+            exampleTranslation: "Tem alguma coisa que não está certa.",
+            exerciseSituation: "Você percebe que tem algo estranho numa situação e quer comentar isso.",
+            exerciseQuestionFr: "Comment diriez-vous « Tem alguma coisa errada »?",
+            exerciseQuestionPt: "Como você diria « Tem alguma coisa errada »?",
+            exerciseCorrectAnswer: [
+                "Il y a quelque chose qui ne va pas",
+                "il y a quelque chose qui ne va pas",
+                "Y'a quelque chose qui ne va pas",
+                "y'a quelque chose qui ne va pas"
+            ]
+        },
+        {
+            title: "Il y a longtemps / Y'a longtemps",
+            translation: "Faz tempo / Há muito tempo",
+            writing: "Il y a longtemps / Y'a longtemps",
+            native: "Il y a longtemps / Y'a longtemps",
+            brazilian: "Il iá lõtã / Iá lõtã",
+            context: "Muito usado para falar de algo que aconteceu há muito tempo.",
+            explanation: "De novo, 'Il y a' vira 'Y'a'. 'Longtemps' tem 'g' mudo e nasal no final: 'lõtã'. Sozinho, 'Y'a longtemps' já quer dizer 'faz tempo'.",
+            exampleSentence: "Il y a longtemps que je ne t'ai pas vu. / Y'a longtemps que je ne t'ai pas vu.",
+            exampleTranslation: "Faz tempo que eu não te vejo.",
+            exerciseSituation: "Você encontra um amigo depois de muitos anos.",
+            exerciseQuestionFr: "Comment diriez-vous « Faz tempo que a gente não se vê »?",
+            exerciseQuestionPt: "Como você diria « Faz tempo que a gente não se vê »?",
+            exerciseCorrectAnswer: [
+                "Ça fait longtemps qu'on ne s'est pas vus",
+                "ça fait longtemps qu'on ne s'est pas vus",
+                "Il y a longtemps qu'on ne s'est pas vus",
+                "il y a longtemps qu'on ne s'est pas vus"
+            ]
+        },
+        {
+            title: "Il y a de quoi faire / Y'a d'quoi faire",
+            translation: "Tem o que fazer / Há o que fazer",
+            writing: "Il y a de quoi faire / Y'a d'quoi faire",
+            native: "Il y a de quoi faire / Y'a d'quoi faire",
+            brazilian: "Il iá dê cuá fér / Iá d'cuá fér",
+            context: "Usado quando há muitas tarefas, atividades ou coisa pra resolver.",
+            explanation: "'De quoi faire' = 'do que fazer'. Na fala, 'de' → 'd'' e 'il y a' → 'y'a'. Sai naturalmente 'Y'a d'quoi faire', típico quando tem trabalho pra caramba.",
+            exampleSentence: "Avec ce projet, il y a de quoi faire. / Avec ce projet, y'a d'quoi faire.",
+            exampleTranslation: "Com esse projeto, tem coisa pra fazer.",
+            exerciseSituation: "Você chega num escritório com muita coisa acumulada.",
+            exerciseQuestionFr: "Comment diriez-vous « Tem muita coisa pra fazer aqui »?",
+            exerciseQuestionPt: "Como você diria « Tem muita coisa pra fazer aqui »?",
+            exerciseCorrectAnswer: [
+                "Y'a de quoi faire ici",
+                "y'a de quoi faire ici",
+                "Il y a de quoi faire ici",
+                "il y a de quoi faire ici"
+            ]
+        },
+
+        // === Bloco 9: C'est / Ce n'est pas ===
+        {
+            title: "Ce n'est pas grave / C'est pas grave",
+            translation: "Não é grave / Tudo bem",
+            writing: "Ce n'est pas grave / C'est pas grave",
+            native: "Ce n'è pa grav / C'est pas grave",
+            brazilian: "Sê nê pá gráv / Sê pá gráv",
+            context: "Formal: 'Ce n'est pas grave'. Informal: 'C'est pas grave'. Muito usado pra tranquilizar.",
+            explanation: "Forma completa: 'ce n'est pas'. Fala real: 'c'est pas' (o 'ne' some). Mesmo padrão de 'Je ne sais pas' → 'J'sais pas'. 'C'est pas grave' = 'não tem problema', 'relaxa'.",
+            exampleSentence: "Ce n'est pas grave si tu es en retard. / C'est pas grave si tu es en retard.",
+            exampleTranslation: "Não tem problema se você está atrasado.",
+            exerciseSituation: "Um aluno se desculpa por chegar atrasado.",
+            exerciseQuestionFr: "Comment répondez-vous « Não é grave » de forma natural?",
+            exerciseQuestionPt: "Como você responde « Não é grave » de forma natural?",
+            exerciseCorrectAnswer: [
+                "C'est pas grave",
+                "c'est pas grave",
+                "Ce n'est pas grave",
+                "ce n'est pas grave"
+            ]
+        },
+        {
+            title: "C'est ça",
+            translation: "É isso / Isso mesmo",
+            writing: "C'est ça",
+            native: "Sè ça",
+            brazilian: "Sê sá",
+            context: "Confirmação: 'exatamente', 'isso mesmo'.",
+            explanation: "Elisão: 'ce est' → 'c'est'. Depois 'c'est' + 'ça' → 'sê sá'. É um dos blocos mais úteis do francês pra confirmar, mostrar que entendeu ou concordar.",
+            exampleSentence: "Tu veux dire que tu arrêtes de fumer ? — Oui, c'est ça.",
+            exampleTranslation: "Você quer dizer que vai parar de fumar? — Sim, é isso.",
+            exerciseSituation: "Alguém explica algo corretamente e você quer confirmar.",
+            exerciseQuestionFr: "Comment diriez-vous « Isso mesmo » em francês?",
+            exerciseQuestionPt: "Como você diria « Isso mesmo » em francês?",
+            exerciseCorrectAnswer: [
+                "C'est ça",
+                "c'est ça"
+            ]
+        },
+        {
+            title: "C'est tout",
+            translation: "É tudo",
+            writing: "C'est tout",
+            native: "Sè tou",
+            brazilian: "Sê tu",
+            context: "Usado para terminar um pedido: 'é só isso'.",
+            explanation: "Mesmo 'c'est' de sempre + 'tout' (tudo). Normalmente o 't' de 'tout' é mudo aqui. 'C'est tout' = 'é só', 'acabou', 'é isso'.",
+            exampleSentence: "Je vais prendre un café et un croissant, c'est tout.",
+            exampleTranslation: "Vou querer um café e um croissant, é tudo.",
+            exerciseSituation: "Você termina um pedido no café.",
+            exerciseQuestionFr: "Comment terminez-vous votre commande en disant « É tudo »?",
+            exerciseQuestionPt: "Como você termina seu pedido dizendo « É tudo »?",
+            exerciseCorrectAnswer: [
+                "C'est tout",
+                "c'est tout"
+            ]
+        },
+        {
+            title: "C'est bon",
+            translation: "Está bom / É bom",
+            writing: "C'est bon",
+            native: "Sè bon",
+            brazilian: "Sê bõ",
+            context: "Pode significar 'está gostoso', 'tá ok', 'já deu'.",
+            explanation: "Elisão de 'ce est' → 'c'est'. 'Bon' tem som nasal 'õ'. Contexto manda: elogio ('c'est bon !') ou confirmação ('c'est bon, merci').",
+            exampleSentence: "Tu peux arrêter, c'est bon comme ça.",
+            exampleTranslation: "Você pode parar, está bom assim.",
+            exerciseSituation: "Você prova uma comida e quer dizer que está boa.",
+            exerciseQuestionFr: "Comment diriez-vous « Está bom! »?",
+            exerciseQuestionPt: "Como você diria « Está bom! »?",
+            exerciseCorrectAnswer: [
+                "C'est bon",
+                "c'est bon"
+            ]
+        },
+        {
+            title: "Ce n'est pas vrai ! / C'est pas vrai !",
+            translation: "Não é verdade! / Mentira!",
+            writing: "Ce n'est pas vrai ! / C'est pas vrai !",
+            native: "Ce n'è pa vrè ! / C'est pas vrai !",
+            brazilian: "Sê nê pá vrê! / Sê pá vrê!",
+            context: "Reação de surpresa: 'não acredito!', 'mentira!'.",
+            explanation: "Mesmo padrão da negação: forma completa com 'ne', forma falada sem 'ne'. 'C'est pas vrai !' muitas vezes não é acusação, é só surpresa.",
+            exampleSentence: "Tu as gagné à la loterie ? C'est pas vrai !",
+            exampleTranslation: "Você ganhou na loteria? Não acredito!",
+            exerciseSituation: "Um amigo te conta uma novidade incrível.",
+            exerciseQuestionFr: "Comment réagissez-vous « Não acredito! »?",
+            exerciseQuestionPt: "Como você reage dizendo « Não acredito! »?",
+            exerciseCorrectAnswer: [
+                "C'est pas vrai !",
+                "c'est pas vrai !",
+                "Ce n'est pas vrai !",
+                "ce n'est pas vrai !"
+            ]
+        },
+
+        // === Bloco 10: Qu'est-ce que / Est-ce que ===
+        {
+            title: "Qu'est-ce que c'est ?",
+            translation: "O que é isso?",
+            writing: "Qu'est-ce que c'est ?",
+            native: "Kès-k'c'est ? / Kès-k'sé ?",
+            brazilian: "Kés-k'sê?",
+            context: "Pergunta básica e ultra frequente.",
+            explanation: "O 'e' de 'que' cai ('kèsk'), o 'que' seguinte também se reduz, e 'c'est' vira 'sé'. Resultado: 'kès-k'sé ?'. Na escrita continua 'Qu'est-ce que c'est ?'.",
+            exampleSentence: "Qu'est-ce que c'est que ce bruit ?",
+            exampleTranslation: "O que é esse barulho?",
+            exerciseSituation: "Você vê um objeto estranho e quer perguntar o que é.",
+            exerciseQuestionFr: "Comment demandes-tu « O que é isso? »?",
+            exerciseQuestionPt: "Como você pergunta « O que é isso? »?",
+            exerciseCorrectAnswer: [
+                "Qu'est-ce que c'est ?",
+                "qu'est-ce que c'est ?",
+                "Kès-k'c'est ?",
+                "kès-k'c'est ?"
+            ]
+        },
+        {
+            title: "Qu'est-ce qu'il y a ?",
+            translation: "O que há? / O que tem?",
+            writing: "Qu'est-ce qu'il y a ?",
+            native: "Kès-k'y'a ?",
+            brazilian: "Kés-kiá?",
+            context: "Pergunta usada tanto pra 'o que está acontecendo?' quanto 'qual o problema?'.",
+            explanation: "Mesma compressão: 'Qu'est-ce que' → 'kèsk'. 'Il y a' vira 'y'a'. Junto: 'kès-k'y'a ?'. É o 'que foi?' ou 'o que há?' do francês.",
+            exampleSentence: "Tu fais cette tête... Qu'est-ce qu'il y a ?",
+            exampleTranslation: "Você está com essa cara... O que foi?",
+            exerciseSituation: "Você percebe que alguém está estranho e quer saber o que está acontecendo.",
+            exerciseQuestionFr: "Comment demandes-tu « O que foi? »?",
+            exerciseQuestionPt: "Como você pergunta « O que foi? »?",
+            exerciseCorrectAnswer: [
+                "Qu'est-ce qu'il y a ?",
+                "qu'est-ce qu'il y a ?",
+                "Kès-k'y'a ?",
+                "kès-k'y'a ?"
+            ]
+        },
+        {
+            title: "Nous allons où ? / On va où ?",
+            translation: "Nós vamos onde? / A gente vai onde?",
+            writing: "Nous allons où ? / On va où ?",
+            native: "Nou-z-allons où ? / On va où ?",
+            brazilian: "Nu-zalõ u? / Õ vá u?",
+            context: "Pergunta sobre destino / plano.",
+            explanation: "Em 'nous allons où ?', o 's' de 'nous' liga com o 'a' de 'allons' → 'nou-Z-allons'. Mas na fala real, 'On va où ?' é muito mais comum e simples.",
+            exampleSentence: "On va où ce week-end ?",
+            exampleTranslation: "A gente vai onde neste fim de semana?",
+            exerciseSituation: "Você quer saber qual é o destino do passeio.",
+            exerciseQuestionFr: "Comment demandes-tu « A gente vai onde? » de forma natural?",
+            exerciseQuestionPt: "Como você pergunta « A gente vai onde? » de forma natural?",
+            exerciseCorrectAnswer: [
+                "On va où ?",
+                "on va où ?"
+            ]
+        },
+        {
+            title: "Il n'y a pas de souci / Y'a pas d'souci",
+            translation: "Não tem problema / Sem preocupações",
+            writing: "Il n'y a pas de souci / Y'a pas d'souci",
+            native: "Il n'y a pas de souci / Y'a pas d'souci",
+            brazilian: "Il niá pá dê susi / Iá pá d'susi",
+            context: "Variante de 'não tem problema', mas com 'souci' (preocupação).",
+            explanation: "Mesma lógica dos outros: 'il n'y a pas de' → 'y'a pas d''. 'De souci' → 'd'souci' com elisão do 'e'. 'Souci' é 'preocupação' – expressão muito carinhosa e leve.",
+            exampleSentence: "Tu peux venir plus tard, y'a pas d'souci.",
+            exampleTranslation: "Você pode vir mais tarde, sem problema.",
+            exerciseSituation: "Alguém pergunta se pode mudar o horário de um encontro.",
+            exerciseQuestionFr: "Comment dirais-tu « Sem problema » usando 'souci'?",
+            exerciseQuestionPt: "Como você diria « Sem problema » usando 'souci'?",
+            exerciseCorrectAnswer: [
+                "Y'a pas d'souci",
+                "y'a pas d'souci",
+                "Il n'y a pas de souci",
+                "il n'y a pas de souci"
+            ]
+        },
+        {
+            title: "J'ai faim",
+            translation: "Estou com fome",
+            writing: "J'ai faim",
+            native: "J'ai faim",
+            brazilian: "J'ê fẽ",
+            context: "Expressão super básica de necessidade.",
+            explanation: "'Je ai' → 'J'ai' por elisão. 'Faim' tem 'm' final mudo e nasal no 'fẽ'. É literalmente 'eu tenho fome', assim como em várias línguas.",
+            exampleSentence: "J'ai faim, on mange quand ?",
+            exampleTranslation: "Estou com fome, a gente come quando?",
+            exerciseSituation: "Você está com fome e quer falar isso.",
+            exerciseQuestionFr: "Comment dis-tu « Estou com fome » em francês?",
+            exerciseQuestionPt: "Como você diz « Estou com fome » em francês?",
+            exerciseCorrectAnswer: [
+                "J'ai faim",
+                "j'ai faim"
+            ]
+        },
+
+        // === Bloco 12: Expressões Idiomáticas ===
+        {
+            title: "À tout à l'heure !",
+            translation: "Até logo! / Até mais tarde!",
+            writing: "À tout à l'heure !",
+            native: "À tou-t-à l'heure !",
+            brazilian: "Á tu-tá lêr!",
+            context: "Usado quando você vai ver a pessoa mais tarde no mesmo dia.",
+            explanation: "O 't' de 'tout' é mudo normalmente, mas antes de 'à' pode ser pronunciado e ligado → 'tu-T-à'. A expressão inteira flui como 'atutalêr'.",
+            exampleSentence: "Je dois partir, à tout à l'heure !",
+            exampleTranslation: "Eu preciso ir, até mais tarde!",
+            exerciseSituation: "Você está saindo do trabalho, mas vai ver o colega de novo no fim do dia.",
+            exerciseQuestionFr: "Comment dis-tu « Até mais tarde! » em francês?",
+            exerciseQuestionPt: "Como você diz « Até mais tarde! » em francês?",
+            exerciseCorrectAnswer: [
+                "À tout à l'heure !",
+                "à tout à l'heure !"
+            ]
+        },
+        {
+            title: "N'importe quoi",
+            translation: "Qualquer coisa / Bobagem",
+            writing: "N'importe quoi",
+            native: "N'importe quoi",
+            brazilian: "Nẽpórt cuá",
+            context: "Pode ser neutro ('qualquer coisa') ou negativo ('que bobagem').",
+            explanation: "O 'e' de 'ne' costuma cair → 'n'importe quoi'. Em tom de reprovação, significa 'que besteira', 'que bobagem'. Em tom neutro, é 'qualquer coisa'.",
+            exampleSentence: "Tu dis n'importe quoi !",
+            exampleTranslation: "Você está falando qualquer coisa / besteira!",
+            exerciseSituation: "Alguém fala algo absurdo e você reage.",
+            exerciseQuestionFr: "Comment réagis-tu en disant « Que bobagem! »?",
+            exerciseQuestionPt: "Como você reage dizendo « Que bobagem! »?",
+            exerciseCorrectAnswer: [
+                "N'importe quoi !",
+                "n'importe quoi !"
+            ]
+        },
+        {
+            title: "Pas de problème / Pas d'problème",
+            translation: "Sem problema",
+            writing: "Pas de problème",
+            native: "Pas d'problème",
+            brazilian: "Pá d'problêm",
+            context: "Resposta-relâmpago para pedidos, desculpas, agradecimentos.",
+            explanation: "O 'e' de 'de' cai e vira 'd'problème'. Muitas vezes aparece sozinho, sem 'il y a' antes. É mais curto que 'y'a pas de problème', com a mesma ideia: está tudo bem.",
+            exampleSentence: "— Merci pour ton aide ! — Pas d'problème.",
+            exampleTranslation: "— Obrigado pela sua ajuda! — Sem problema.",
+            exerciseSituation: "Alguém te agradece por um favor.",
+            exerciseQuestionFr: "Comment réponds-tu « Sem problema » de forma bem curta?",
+            exerciseQuestionPt: "Como você responde « Sem problema » de forma bem curta?",
+            exerciseCorrectAnswer: [
+                "Pas d'problème",
+                "pas d'problème",
+                "Pas de problème",
+                "pas de problème"
+            ]
+        },
+        {
+            title: "Ça marche !",
+            translation: "Funciona! / Combinado!",
+            writing: "Ça marche !",
+            native: "Ça marche !",
+            brazilian: "Sá march!",
+            context: "Usado para dizer que algo funciona ou que o plano está combinado.",
+            explanation: "Não há elisão ou ligação especial. Literalmente 'isso anda', sentido de 'funciona', 'beleza', 'tá combinado'. Muito usado em acordos rápidos.",
+            exampleSentence: "On se retrouve à 18h devant le cinéma ? — Ça marche !",
+            exampleTranslation: "A gente se encontra às 18h na frente do cinema? — Combinado!",
+            exerciseSituation: "Um amigo sugere um plano que você aceita.",
+            exerciseQuestionFr: "Comment réponds-tu « Combinado! »?",
+            exerciseQuestionPt: "Como você responde « Combinado! »?",
+            exerciseCorrectAnswer: [
+                "Ça marche !",
+                "ça marche !"
+            ]
+        },
+        {
+            title: "Ce n'est pas la peine / C'est pas la peine",
+            translation: "Não vale a pena / Não precisa",
+            writing: "Ce n'est pas la peine / C'est pas la peine",
+            native: "Ce n'è pa la pên / C'est pas la peine",
+            brazilian: "Sê nê pá la pên / Sê pá la pên",
+            context: "Diz que algo é desnecessário ou não compensa.",
+            explanation: "Forma completa: 'Ce n'est pas la peine'. Fala cotidiana: 'C'est pas la peine'. Expressão padrão pra 'não precisa', 'não se incomode'.",
+            exampleSentence: "C'est pas la peine de m'attendre.",
+            exampleTranslation: "Não precisa me esperar.",
+            exerciseSituation: "Alguém insiste em fazer algo que você acha desnecessário.",
+            exerciseQuestionFr: "Comment dirais-tu « Não precisa » com 'la peine'?",
+            exerciseQuestionPt: "Como você diria « Não precisa » com 'la peine'?",
+            exerciseCorrectAnswer: [
+                "C'est pas la peine",
+                "c'est pas la peine",
+                "Ce n'est pas la peine",
+                "ce n'est pas la peine"
+            ]
+        },
+        {
+            title: "Fais attention !",
+            translation: "Preste atenção!",
+            writing: "Fais attention !",
+            native: "Fai-z-attention !",
+            brazilian: "Fê-zatãciõ!",
+            context: "Alerta, cuidado, especialmente com crianças ou situações de risco.",
+            explanation: "O 's' de 'fais' vira 'Z' antes do 'a' de 'attention' → 'fai-Z-attention'. É uma LIAISON forte, bem perceptível.",
+            exampleSentence: "Fais attention en traversant la rue !",
+            exampleTranslation: "Presta atenção ao atravessar a rua!",
+            exerciseSituation: "Você quer alertar alguém para ter cuidado.",
+            exerciseQuestionFr: "Comment dis-tu « Presta atenção! » em francês?",
+            exerciseQuestionPt: "Como você diz « Presta atenção! » em francês?",
+            exerciseCorrectAnswer: [
+                "Fais attention !",
+                "fais attention !"
+            ]
+        },
+        {
+            title: "J'ai hâte",
+            translation: "Estou ansioso / Mal posso esperar",
+            writing: "J'ai hâte",
+            native: "J'ai-t-hâte",
+            brazilian: "J'ê-tát",
+            context: "Expressa expectativa positiva.",
+            explanation: "'Je ai' → 'J'ai'. O 't' de ligação pode aparecer antes do 'h' mudo de 'hâte', dando 'j'ê-tát'. É o jeito nativo de dizer 'mal posso esperar'.",
+            exampleSentence: "J'ai hâte de te voir.",
+            exampleTranslation: "Estou ansioso para te ver.",
+            exerciseSituation: "Você está animado para uma viagem.",
+            exerciseQuestionFr: "Comment dirais-tu « Estou ansioso para viajar »?",
+            exerciseQuestionPt: "Como você diria « Estou ansioso para viajar »?",
+            exerciseCorrectAnswer: [
+                "J'ai hâte de voyager",
+                "j'ai hâte de voyager"
+            ]
+        },
+        {
+            title: "Je m'en vais / J'm'en vais",
+            translation: "Eu estou indo embora",
+            writing: "Je m'en vais",
+            native: "J'm'en vais",
+            brazilian: "J'mã vê",
+            context: "Fala informal para avisar que está indo embora.",
+            explanation: "O 'e' de 'je' cai → 'j'm'en vais'. 'En' é nasal ('ã'). Literalmente 'eu me vou', sentido de 'tô indo'.",
+            exampleSentence: "Bon, j'm'en vais, à demain !",
+            exampleTranslation: "Bom, tô indo embora, até amanhã!",
+            exerciseSituation: "Você está saindo de um encontro com amigos.",
+            exerciseQuestionFr: "Comment annonces-tu « Eu estou indo embora » de forma natural?",
+            exerciseQuestionPt: "Como você anuncia « Eu estou indo embora » de forma natural?",
+            exerciseCorrectAnswer: [
+                "Je m'en vais",
+                "je m'en vais",
+                "J'm'en vais",
+                "j'm'en vais"
+            ]
+        },
+        {
+            title: "Nous verrons bien / On verra bien",
+            translation: "A gente vai ver / Veremos",
+            writing: "Nous verrons bien / On verra bien",
+            native: "Nous verrons bien / On verra bien",
+            brazilian: "Nu verrõ biẽ / Õ verá biẽ",
+            context: "Usado quando você deixa o resultado em aberto.",
+            explanation: "'Nous verrons bien' é mais formal/escrito, 'On verra bien' é o que todo mundo fala. Não há ligação especial, mas o 'bien' nasal é importante.",
+            exampleSentence: "On verra bien ce qui se passe.",
+            exampleTranslation: "A gente vai ver o que acontece.",
+            exerciseSituation: "Você não quer se comprometer com um resultado.",
+            exerciseQuestionFr: "Comment dirais-tu « A gente vai ver » em francês?",
+            exerciseQuestionPt: "Como você diria « A gente vai ver » em francês?",
+            exerciseCorrectAnswer: [
+                "On verra bien",
+                "on verra bien",
+                "Nous verrons bien",
+                "nous verrons bien"
+            ]
+        },
+        {
+            title: "Ça ne me dit rien / Ça me dit rien",
+            translation: "Isso não me diz nada / Não me interessa",
+            writing: "Ça ne me dit rien / Ça me dit rien",
+            native: "Ça ne me dit rien / Ça me dit rien",
+            brazilian: "Sá ne mê di riẽ / Sá mê di riẽ",
+            context: "Usado quando algo não te atrai, não te interessa.",
+            explanation: "Forma completa com 'ne', forma falada sem 'ne'. Literalmente 'isso não me diz nada', mas o sentido real é 'não tô a fim', 'não me anima muito'.",
+            exampleSentence: "Aller à cette fête, ça me dit rien.",
+            exampleTranslation: "Ir a essa festa, não me anima.",
+            exerciseSituation: "Alguém propõe uma atividade que você não quer muito fazer.",
+            exerciseQuestionFr: "Comment dirais-tu « Isso não me anima » em francês?",
+            exerciseQuestionPt: "Como você diria « Isso não me anima » em francês?",
+            exerciseCorrectAnswer: [
+                "Ça me dit rien",
+                "ça me dit rien",
+                "Ça ne me dit rien",
+                "ça ne me dit rien"
+            ]
+        },
+
+        // Aba final
+        {
+            title: "🎯 Exercícios Finais",
+            translation: "Teste seu conhecimento",
+            isExerciseTab: true
+        }
+    ];
+
+    function shuffleArray(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function renderTabs() {
+        const container = document.getElementById('tab-container');
+        container.innerHTML = phrasesData.map((phrase, index) => `
+            <button 
+                onclick="selectTab(${index})"
+                class="w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                ${index === activeTab 
+                    ? 'bg-blue-50 border-blue-500 text-blue-700' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                }">
+                <span class="block font-bold text-sm">${phrase.title}</span>
+                <span class="block text-xs mt-0.5 ${index === activeTab ? 'text-blue-400' : 'text-slate-400'}">${phrase.translation}</span>
+            </button>
+        `).join('');
+    }
+
+    function renderContent() {
+        const display = document.getElementById('content-display');
+        const phrase = phrasesData[activeTab];
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        prevBtn.disabled = activeTab === 0;
+        nextBtn.disabled = activeTab === phrasesData.length - 1;
+
+        // Aba Mapa
+        if (phrase.isOverview) {
+            display.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-3xl font-black text-slate-800">🧭 Mapa do Francês Fluido</h2>
+                        <p class="text-slate-500 mt-1 text-sm">
+                            Antes de mergulhar nas expressões, veja este guia rápido. Ele mostra os três pilares do seu curso:
+                            <span class="font-semibold">LIAISON</span>, <span class="font-semibold">ELISÃO</span> e 
+                            <span class="font-semibold">ON vs NOUS</span>.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                            <p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">1. Ligação (Liaison)</p>
+                            <p class="text-sm text-blue-900 mb-2">
+                                Quando uma consoante “muda” (normalmente muda) no fim de uma palavra é pronunciada 
+                                e grudada na vogal da palavra seguinte.
+                            </p>
+                            <ul class="text-xs text-blue-900 space-y-1">
+                                <li>• <span class="font-mono font-bold">nous <u>z</u>allons</span> → nu-zalõ</li>
+                                <li>• <span class="font-mono font-bold">fai<u>z</u> attention</span> → fê-zatãciõ</li>
+                                <li>• <span class="font-mono font-bold">beau<u>z</u> enfants</span> (outro bloco)</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+                            <p class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">2. Elisão (Som que cai)</p>
+                            <p class="text-sm text-orange-900 mb-2">
+                                Quando um som (geralmente o “e”) desaparece para a fala ficar mais rápida e fluida.
+                            </p>
+                            <ul class="text-xs text-orange-900 space-y-1">
+                                <li>• <span class="font-mono font-bold">je ai → j'ai</span></li>
+                                <li>• <span class="font-mono font-bold">ce est → c'est</span></li>
+                                <li>• <span class="font-mono font-bold">de problème → d'problème</span></li>
+                                <li>• <span class="font-mono font-bold">je m'en vais → j'm'en vais</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-green-50 border border-green-200 rounded-2xl p-4">
+                            <p class="text-xs font-bold text-green-500 uppercase tracking-wider mb-2">3. ON vs NOUS</p>
+                            <p class="text-sm text-green-900 mb-2">
+                                Os dois significam “nós”, mas o uso é diferente:
+                            </p>
+                            <ul class="text-xs text-green-900 space-y-1">
+                                <li>• <span class="font-mono font-bold">nous</span> → mais formal, escrito, reuniões.</li>
+                                <li>• <span class="font-mono font-bold">on</span> → fala real, amigos, cotidiano.</li>
+                                <li>• Em vez de “Nous allons au cinéma”, os franceses dizem muito mais “On va au cinéma”.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">🔎 Como usar este curso</p>
+                        <ol class="list-decimal list-inside text-sm text-slate-700 space-y-1">
+                            <li>Clique nas abas à esquerda: cada uma traz uma expressão-chave.</li>
+                            <li>Veja sempre: escrita formal, fala real, versão “para brasileiro”.</li>
+                            <li>Leia a explicação focando no que muda no som (ligação? elisão? on vs nous?).</li>
+                            <li>Depois, faça o exercício da aba, escrevendo a frase em francês.</li>
+                            <li>No final, use a aba <span class="font-mono font-bold">🎯 Exercícios Finais</span> para treinar tradução PT → FR.</li>
+                        </ol>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">🧩 Onde cada bloco entra?</p>
+                        <ul class="text-sm text-slate-700 space-y-1">
+                            <li>• <span class="font-semibold">Bloco Il y a / Y'a</span>: falar de “ter / haver” em situações reais.</li>
+                            <li>• <span class="font-semibold">Bloco C'est / Ce n'est pas</span>: julgar, reagir, dizer “é isso / não é isso”.</li>
+                            <li>• <span class="font-semibold">Bloco Qu'est-ce que / Est-ce que</span>: perguntas naturais, não de livro.</li>
+                            <li>• <span class="font-semibold">Bloco Idiomático</span>: o francês das conversas, memes e mensagens.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Aba exercícios finais
+        if (phrase.isExerciseTab) {
+            display.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-3xl font-black text-slate-800">🎯 Exercícios Finais</h2>
+                        <p class="text-slate-500 mt-1">Traduza as expressões do português para o francês.</p>
+                    </div>
+
+                    <div class="bg-white border-2 border-slate-200 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">📝 Tradução: Português → Francês</h3>
+                        <p class="text-slate-500 text-sm mb-6">Leia a expressão em português e escreva o equivalente em francês.</p>
+
+                        <div id="ex-progress" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3"></div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                            <p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">🇧🇷 Em Português</p>
+                            <p id="ex-question" class="text-2xl font-black text-blue-900"></p>
+                        </div>
+
+                        <input 
+                            type="text" 
+                            id="ex-input" 
+                            class="w-full p-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 mb-3 text-slate-800 text-lg" 
+                            placeholder="Escreva em francês..."
+                            onkeydown="if(event.key==='Enter') checkFinalAnswer()">
+
+                        <div class="flex gap-3">
+                            <button onclick="checkFinalAnswer()" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors">
+                                ✅ Verificar
+                            </button>
+                            <button onclick="nextFinalQuestion()" class="flex-1 px-4 py-3 rounded-xl bg-slate-700 text-white font-bold hover:bg-slate-800 transition-colors">
+                                ➡️ Próxima
+                            </button>
+                        </div>
+
+                        <div id="ex-feedback" class="mt-4 p-4 rounded-xl border-2 hidden text-base"></div>
+                    </div>
+                </div>
+            `;
+            initFinalExercise();
+            return;
+        }
+
+        // Abas normais
+        display.innerHTML = `
+            <div class="space-y-5">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800">${phrase.title}</h2>
+                    <p class="text-lg text-blue-600 font-semibold mt-1">${phrase.translation}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">✏️ Escrita Padrão</p>
+                        <p class="font-mono text-xl font-bold text-slate-800">${phrase.writing}</p>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+                        <p class="text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">🗣️ Pronúncia Fluida Real</p>
+                        <p class="font-mono text-xl font-bold text-orange-800">${phrase.native}</p>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border border-green-200 rounded-2xl p-4">
+                    <p class="text-xs font-bold text-green-500 uppercase tracking-wider mb-2">🇧🇷 Como o Brasileiro Aprende</p>
+                    <p class="font-mono text-2xl font-black text-green-800">"${phrase.brazilian}"</p>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+                    <p class="text-xs font-bold text-yellow-600 uppercase tracking-wider mb-2">📍 Contexto de Uso</p>
+                    <p class="text-yellow-900 font-medium text-sm leading-relaxed">${phrase.context}</p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                    <p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3">🔍 O Que Acontece — Explicação Detalhada</p>
+                    <p class="text-blue-900 leading-relaxed text-sm">${phrase.explanation}</p>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+                    <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-2">💬 Exemplo em Contexto Real</p>
+                    <p class="font-semibold text-purple-900 italic">"${phrase.exampleSentence}"</p>
+                    <p class="text-purple-600 text-sm mt-1">${phrase.exampleTranslation}</p>
+                </div>
+
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">✍️ Exercício Prático</p>
+                    <div class="bg-slate-50 rounded-xl p-4 mb-4">
+                        <p class="text-xs font-semibold text-slate-500 mb-1">📌 Situação:</p>
+                        <p class="text-slate-700 text-sm">${phrase.exerciseSituation}</p>
+                    </div>
+                    <p class="font-bold text-slate-800 mb-1 text-sm">${phrase.exerciseQuestionFr}</p>
+                    <p class="text-slate-400 text-xs mb-4 italic">(${phrase.exerciseQuestionPt})</p>
+                    <input 
+                        type="text" 
+                        id="exercise-input" 
+                        class="w-full p-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 mb-3 text-slate-800" 
+                        placeholder="Digite sua resposta em francês..."
+                        onkeydown="if(event.key==='Enter') checkAnswer(${activeTab})">
+                    <button 
+                        onclick="checkAnswer(${activeTab})" 
+                        class="w-full px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors text-sm">
+                        Verificar Resposta
+                    </button>
+                    <div id="exercise-feedback" class="mt-3 p-3 rounded-xl border-2 hidden text-sm"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    const translationData = () =>
+        phrasesData
+            .filter(p => !p.isExerciseTab && !p.isOverview)
+            .map(p => ({ portuguese: p.translation, french: p.exerciseCorrectAnswer }));
+
+    let currentFinalIndex = 0;
+    let shuffledFinalData = [];
+
+    function initFinalExercise() {
+        shuffledFinalData = shuffleArray(translationData());
+        currentFinalIndex = 0;
+        showFinalQuestion();
+    }
+
+    function showFinalQuestion() {
+        const qEl = document.getElementById('ex-question');
+        const iEl = document.getElementById('ex-input');
+        const fEl = document.getElementById('ex-feedback');
+        const pEl = document.getElementById('ex-progress');
+
+        if (!qEl || !iEl || !fEl) return;
+
+        const current = shuffledFinalData[currentFinalIndex];
+        qEl.textContent = current.portuguese;
+        iEl.value = '';
+        iEl.classList.remove('correct-answer', 'incorrect-answer');
+        fEl.classList.add('hidden');
+        fEl.innerHTML = '';
+        iEl.focus();
+
+        if (pEl) {
+            pEl.textContent = `Questão ${currentFinalIndex + 1} de ${shuffledFinalData.length}`;
+        }
+    }
+
+    function checkFinalAnswer() {
+        const iEl = document.getElementById('ex-input');
+        const fEl = document.getElementById('ex-feedback');
+        if (!iEl || !fEl) return;
+
+        const userAnswer = iEl.value.trim().toLowerCase();
+        const current = shuffledFinalData[currentFinalIndex];
+        const correctAnswers = current.french.map(a => a.toLowerCase().trim());
+
+        fEl.classList.remove('hidden', 'correct-answer', 'incorrect-answer');
+        iEl.classList.remove('correct-answer', 'incorrect-answer');
+
+        if (correctAnswers.includes(userAnswer)) {
+            fEl.classList.add('correct-answer');
+            iEl.classList.add('correct-answer');
+            fEl.innerHTML = '✅ <span class="font-bold text-green-800">Correto! Excelente!</span>';
+        } else {
+            fEl.classList.add('incorrect-answer');
+            iEl.classList.add('incorrect-answer');
+            fEl.innerHTML = `❌ <span class="font-bold text-red-800">Não exatamente.</span> Resposta esperada: <span class="font-mono font-bold text-red-700">"${current.french[0]}"</span>`;
+        }
+    }
+
+    function nextFinalQuestion() {
+        currentFinalIndex = (currentFinalIndex + 1) % shuffledFinalData.length;
+        showFinalQuestion();
+    }
+
+    function checkAnswer(tabIndex) {
+        const input = document.getElementById('exercise-input');
+        const feedback = document.getElementById('exercise-feedback');
+        if (!input || !feedback) return;
+
+        const userAnswer = input.value.trim().toLowerCase();
+        const phrase = phrasesData[tabIndex];
+        const correctAnswers = phrase.exerciseCorrectAnswer.map(a => a.toLowerCase().trim());
+
+        feedback.classList.remove('hidden', 'correct-answer', 'incorrect-answer');
+        input.classList.remove('correct-answer', 'incorrect-answer');
+
+        if (correctAnswers.includes(userAnswer)) {
+            feedback.classList.add('correct-answer');
+            input.classList.add('correct-answer');
+            feedback.innerHTML = '✅ <span class="font-bold text-green-800">Correto! Muito bem!</span>';
+        } else {
+            feedback.classList.add('incorrect-answer');
+            input.classList.add('incorrect-answer');
+            feedback.innerHTML = `❌ <span class="font-bold text-red-800">Não exatamente.</span> Resposta esperada: <span class="font-mono font-bold text-red-700">"${phrase.exerciseCorrectAnswer[0]}"</span>`;
+        }
+    }
+
+    function selectTab(index) {
+        activeTab = index;
+        renderTabs();
+        renderContent();
+        document.getElementById('content-display').scrollTop = 0;
+        const container = document.getElementById('tab-container');
+        const buttons = container.querySelectorAll('button');
+        if (buttons[index]) {
+            buttons[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function navigate(direction) {
+        const newIndex = activeTab + direction;
+        if (newIndex >= 0 && newIndex < phrasesData.length) {
+            selectTab(newIndex);
+        }
+    }
+
+    document.getElementById('prev-btn').onclick = () => navigate(-1);
+    document.getElementById('next-btn').onclick = () => navigate(1);
+
+    window.onload = function () {
+        activeTab = 0;
+        renderTabs();
+        renderContent();
+    };
+</script>
+</body>
+</html>
